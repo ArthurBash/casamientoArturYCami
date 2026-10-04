@@ -37,6 +37,34 @@ function tick() {
 
 if (tick()) timer = setInterval(tick, 1000);
 
+// ---------- Modo claro / oscuro ----------
+const root = document.documentElement;
+const themeToggle = document.getElementById('theme-toggle');
+const themeColor = document.querySelector('meta[name="theme-color"]');
+
+function applyTheme(dark) {
+  if (dark) root.dataset.theme = 'dark';
+  else delete root.dataset.theme;
+  themeToggle.setAttribute('aria-pressed', String(dark));
+  themeToggle.title = dark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
+  themeColor.content = dark ? '#1d1720' : '#d1c2d5';
+}
+
+applyTheme(root.dataset.theme === 'dark');
+
+themeToggle.addEventListener('click', () => {
+  const dark = root.dataset.theme !== 'dark';
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (document.startViewTransition && !reduceMotion) {
+    document.startViewTransition(() => applyTheme(dark));
+  } else {
+    applyTheme(dark);
+  }
+  try {
+    localStorage.setItem('tema', dark ? 'oscuro' : 'claro');
+  } catch {}
+});
+
 // ---------- Aparición suave al hacer scroll ----------
 const reveals = document.querySelectorAll('.reveal');
 if ('IntersectionObserver' in window) {
